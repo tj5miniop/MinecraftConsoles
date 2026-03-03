@@ -729,7 +729,6 @@
       <Filter Include="Windows64\Source Files\Network">
       <UniqueIdentifier>{e5d7fb24-25b8-413c-84ec-974bf0d4a3d1}</UniqueIdentifier>
     </Filter>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <None Include="ReadMe.txt" />
@@ -3617,7 +3616,7 @@
     <ClInclude Include="Common\UI\UIScene_Keyboard.h">
       <Filter>Common\Source Files\UI\Scenes</Filter>
     </ClInclude>
-<ClInclude Include="Common\Leaderboards\SonyLeaderboardManager.h">
+    <ClInclude Include="Common\Leaderboards\SonyLeaderboardManager.h">
       <Filter>Common\Source Files\Leaderboards</Filter>
     </ClInclude>
     <ClInclude Include="Common\Leaderboards\base64.h">

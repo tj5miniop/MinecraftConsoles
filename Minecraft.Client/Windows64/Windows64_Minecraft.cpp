@@ -431,90 +431,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			return TRUE;
 		}
 		return DefWindowProc(hWnd, message, wParam, lParam);
-	case WM_SIZE:
-	{
-		if (wParam == SIZE_MINIMIZED)
-			return 0;
-
-		UINT width = LOWORD(lParam);
-		UINT height = HIWORD(lParam);
-
-		if (width == 0 || height == 0)
-			return 0;
-
-		g_ScreenWidth = width;
-		g_ScreenHeight = height;
-
-		if (g_pSwapChain)
-		{
-			g_pImmediateContext->OMSetRenderTargets(0, 0, 0);
-			g_pImmediateContext->ClearState();
-			g_pImmediateContext->Flush();
-
-			if (g_pRenderTargetView)
-			{
-				g_pRenderTargetView->Release();
-				g_pRenderTargetView = nullptr;
-			}
-
-			if (g_pDepthStencilView)
-			{
-				g_pDepthStencilView->Release();
-				g_pDepthStencilView = nullptr;
-			}
-
-			if (g_pDepthStencilBuffer)
-			{
-				g_pDepthStencilBuffer->Release();
-				g_pDepthStencilBuffer = nullptr;
-			}
-
-			HRESULT hr = g_pSwapChain->ResizeBuffers(
-				0,
-				width,
-				height,
-				DXGI_FORMAT_UNKNOWN,
-				0
-			);
-
-			if (FAILED(hr))
-			{
-				app.DebugPrintf("ResizeBuffers Failed! HRESULT: 0x%X\n", hr);
-				return 0;
-			}
-
-			ID3D11Texture2D* pBackBuffer = nullptr;
-			g_pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&pBackBuffer);
-
-			g_pd3dDevice->CreateRenderTargetView(pBackBuffer, NULL, &g_pRenderTargetView);
-			pBackBuffer->Release();
-
-			D3D11_TEXTURE2D_DESC descDepth = {};
-			descDepth.Width = width;
-			descDepth.Height = height;
-			descDepth.MipLevels = 1;
-			descDepth.ArraySize = 1;
-			descDepth.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-			descDepth.SampleDesc.Count = 1;
-			descDepth.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-			g_pd3dDevice->CreateTexture2D(&descDepth, NULL, &g_pDepthStencilBuffer);
-			g_pd3dDevice->CreateDepthStencilView(g_pDepthStencilBuffer, NULL, &g_pDepthStencilView);
-
-			g_pImmediateContext->OMSetRenderTargets(1, &g_pRenderTargetView, g_pDepthStencilView);
-
-			D3D11_VIEWPORT vp = {};
-			vp.Width = (FLOAT)width;
-			vp.Height = (FLOAT)height;
-			vp.MinDepth = 0.0f;
-			vp.MaxDepth = 1.0f;
-			vp.TopLeftX = 0;
-			vp.TopLeftY = 0;
-
-			g_pImmediateContext->RSSetViewports(1, &vp);
-		}
-	}
-	break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -803,20 +719,6 @@ void CleanupDevice()
 	if( g_pSwapChain ) g_pSwapChain->Release();
 	if( g_pImmediateContext ) g_pImmediateContext->Release();
 	if( g_pd3dDevice ) g_pd3dDevice->Release();
-}
-
-typedef HRESULT(__stdcall* SetProcessDpiAwareness_f)(PROCESS_DPI_AWARENESS);
-static HRESULT dyn_SetProcessDpiAwareness(PROCESS_DPI_AWARENESS value) 
-{
-  static const auto ptr = reinterpret_cast<SetProcessDpiAwareness_f>(
-      reinterpret_cast<void*>(::GetProcAddress(static_cast<HMODULE>(LoadLibraryExW(L"Shcore.dll", nullptr, 0)), "SetProcessDpiAwareness")));
-  if (ptr == nullptr) 
-  {
-    SetLastError(ERROR_CALL_NOT_IMPLEMENTED);
-    return E_NOTIMPL;
-  }
-
-  return ptr(value);
 }
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -1370,7 +1272,15 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			}
 		}
 
-		// F3 toggles the debug console overlay, F11 toggles fullscreen
+		// F1 toggles the HUD, F3 toggles the debug console overlay, F11 toggles fullscreen
+		if (KMInput.IsKeyPressed(VK_F1))
+		{
+			int primaryPad = ProfileManager.GetPrimaryPad();
+			unsigned char displayHud = app.GetGameSettings(primaryPad, eGameSetting_DisplayHUD);
+			app.SetGameSettings(primaryPad, eGameSetting_DisplayHUD, displayHud ? 0 : 1);
+			app.SetGameSettings(primaryPad, eGameSetting_DisplayHand, displayHud ? 0 : 1);
+		}
+		
 		if (KMInput.IsKeyPressed(VK_F3))
 		{
 			static bool s_debugConsole = false;
@@ -1397,7 +1307,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			{
 				{
 					ui.NavigateToScene(0, eUIScene_InGameInfoMenu);
-					
+
 				}
 			}
 		}
@@ -1420,7 +1330,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		{
 			if (Minecraft* pMinecraft = Minecraft::GetInstance())
 			{
-				if (pMinecraft->options && app.DebugSettingsOn() && 
+				if (pMinecraft->options && app.DebugSettingsOn() &&
 					app.GetGameStarted() && !ui.GetMenuDisplayed(0) && pMinecraft->screen == NULL)
 				{
 					ui.NavigateToScene(0, eUIScene_DebugOverlay, NULL, eUILayer_Debug);
