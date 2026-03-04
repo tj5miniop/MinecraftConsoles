@@ -5,6 +5,7 @@ on:
   push:
     branches:
     - 'main'
+    - 'Test-0303'
     paths-ignore:
       - '.gitignore'
       - '*.md'
