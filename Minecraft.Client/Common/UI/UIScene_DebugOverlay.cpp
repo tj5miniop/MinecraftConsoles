@@ -39,17 +39,37 @@ UIScene_DebugOverlay::UIScene_DebugOverlay(int iPad, void *initData, UILayer *pa
 	m_buttonSetNight.init(L"Set Night", eControl_SetNight);
 
 	m_buttonListItems.init(eControl_Items);
+	
+    // Sort items alphabetically
+    std::vector<std::pair<std::wstring, unsigned int>> sortedItems;
+    for (size_t i = 0; i < Item::items.length; ++i)
+    {
+        if (Item::items[i] != NULL)
+        {
+			sortedItems.emplace_back(std::wstring(app.GetString(Item::items[i]->getDescriptionId())), i);
+        }
+    }
 
+    for (size_t i = 1; i < sortedItems.size(); ++i)
+    {
+        auto key = sortedItems[i];
+        int j = i - 1;
+        while (j >= 0 && sortedItems[j].first > key.first)
+        {
+            sortedItems[j + 1] = sortedItems[j];
+            --j;
+        }
+        sortedItems[j + 1] = key;
+    }
+
+	// Populate the list in sorted order
 	int listId = 0;
-	for(unsigned int i = 0; i < Item::items.length; ++i)
-	{
-		if(Item::items[i] != NULL)
-		{
-			m_itemIds.push_back(i);
-			m_buttonListItems.addItem(app.GetString(Item::items[i]->getDescriptionId()), listId);
-			++listId;
-		}
-	}
+    for (const auto& entry : sortedItems)
+    {
+        m_itemIds.push_back(entry.second);
+        m_buttonListItems.addItem(entry.first.c_str(), listId);
+        ++listId;
+    }
 
 	m_buttonListEnchantments.init(eControl_Enchantments);
 
@@ -60,7 +80,7 @@ UIScene_DebugOverlay::UIScene_DebugOverlay(int iPad, void *initData, UILayer *pa
 		for(unsigned int level = ench->getMinLevel(); level <= ench->getMaxLevel(); ++level)
 		{
 			m_enchantmentIdAndLevels.push_back(pair<int,int>(ench->id,level));
-			m_buttonListEnchantments.addItem(app.GetString( ench->getDescriptionId() ) + _toString<int>(level) );
+			m_buttonListEnchantments.addItem(app.GetString( ench->getDescriptionId() ) + std::to_wstring(level) );
 		}
 	}
 
@@ -176,7 +196,7 @@ void UIScene_DebugOverlay::handlePress(F64 controlId, F64 childId)
 		{
 			int id = childId;
 			if(id<m_mobFactories.size())
-			{			
+			{
 				app.SetXuiServerAction(ProfileManager.GetPrimaryPad(),eXuiServerAction_SpawnMob,(void *)m_mobFactories[id]);
 			}
 		}

@@ -60,7 +60,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM_AUX(Tile::treeTrunk_Id, 0)
 		ITEM_AUX(Tile::treeTrunk_Id, TreeTile::DARK_TRUNK)
 		ITEM_AUX(Tile::treeTrunk_Id, TreeTile::BIRCH_TRUNK)
-		ITEM_AUX(Tile::treeTrunk_Id, TreeTile::JUNGLE_TRUNK)	
+		ITEM_AUX(Tile::treeTrunk_Id, TreeTile::JUNGLE_TRUNK)
 		ITEM(Tile::gravel_Id)
 		ITEM(Tile::redBrick_Id)
 		ITEM(Tile::mossyCobblestone_Id)
@@ -144,7 +144,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Tile::sponge_Id)
 		ITEM(Tile::melon_Id)
 		ITEM(Tile::pumpkin_Id)
-		ITEM(Tile::litPumpkin_Id)	
+		ITEM(Tile::litPumpkin_Id)
 		ITEM_AUX(Tile::sapling_Id, Sapling::TYPE_DEFAULT)
 		ITEM_AUX(Tile::sapling_Id, Sapling::TYPE_EVERGREEN)
 		ITEM_AUX(Tile::sapling_Id, Sapling::TYPE_BIRCH)
@@ -210,7 +210,6 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM_AUX(Tile::woolCarpet_Id,13)	// Green
 		ITEM_AUX(Tile::woolCarpet_Id,12)	// Brown
 
-#if 0
 		ITEM_AUX(Tile::stained_glass_Id,14)	// Red
 		ITEM_AUX(Tile::stained_glass_Id,1)	// Orange
 		ITEM_AUX(Tile::stained_glass_Id,4)	// Yellow
@@ -244,7 +243,6 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM_AUX(Tile::stained_glass_pane_Id,15)	// Black
 		ITEM_AUX(Tile::stained_glass_pane_Id,13)	// Green
 		ITEM_AUX(Tile::stained_glass_pane_Id,12)	// Brown
-#endif
 
 #ifndef _CONTENT_PACKAGE
 	DEF(eCreativeInventory_ArtToolsDecorations)
@@ -265,40 +263,6 @@ void IUIScene_CreativeMenu::staticCtor()
 			BuildFirework(list, FireworksItem::TYPE_CREEPER, DyePowderItem::BLUE, 1, true, false);
 			BuildFirework(list, FireworksItem::TYPE_STAR, DyePowderItem::YELLOW, 1, false, false);
 			BuildFirework(list, FireworksItem::TYPE_BIG, DyePowderItem::WHITE, 1, true, true);
-
-			ITEM_AUX(Tile::stained_glass_Id,14)	// Red
-			ITEM_AUX(Tile::stained_glass_Id,1)	// Orange
-			ITEM_AUX(Tile::stained_glass_Id,4)	// Yellow
-			ITEM_AUX(Tile::stained_glass_Id,5)	// Lime
-			ITEM_AUX(Tile::stained_glass_Id,3)	// Light Blue
-			ITEM_AUX(Tile::stained_glass_Id,9)	// Cyan
-			ITEM_AUX(Tile::stained_glass_Id,11)	// Blue
-			ITEM_AUX(Tile::stained_glass_Id,10)	// Purple
-			ITEM_AUX(Tile::stained_glass_Id,2)	// Magenta
-			ITEM_AUX(Tile::stained_glass_Id,6)	// Pink
-			ITEM_AUX(Tile::stained_glass_Id,0)	// White
-			ITEM_AUX(Tile::stained_glass_Id,8)	// Light Gray
-			ITEM_AUX(Tile::stained_glass_Id,7)	// Gray
-			ITEM_AUX(Tile::stained_glass_Id,15)	// Black
-			ITEM_AUX(Tile::stained_glass_Id,13)	// Green
-			ITEM_AUX(Tile::stained_glass_Id,12)	// Brown
-
-			ITEM_AUX(Tile::stained_glass_pane_Id,14)	// Red
-			ITEM_AUX(Tile::stained_glass_pane_Id,1)	// Orange
-			ITEM_AUX(Tile::stained_glass_pane_Id,4)	// Yellow
-			ITEM_AUX(Tile::stained_glass_pane_Id,5)	// Lime
-			ITEM_AUX(Tile::stained_glass_pane_Id,3)	// Light Blue
-			ITEM_AUX(Tile::stained_glass_pane_Id,9)	// Cyan
-			ITEM_AUX(Tile::stained_glass_pane_Id,11)	// Blue
-			ITEM_AUX(Tile::stained_glass_pane_Id,10)	// Purple
-			ITEM_AUX(Tile::stained_glass_pane_Id,2)	// Magenta
-			ITEM_AUX(Tile::stained_glass_pane_Id,6)	// Pink
-			ITEM_AUX(Tile::stained_glass_pane_Id,0)	// White
-			ITEM_AUX(Tile::stained_glass_pane_Id,8)	// Light Gray
-			ITEM_AUX(Tile::stained_glass_pane_Id,7)	// Gray
-			ITEM_AUX(Tile::stained_glass_pane_Id,15)	// Black
-			ITEM_AUX(Tile::stained_glass_pane_Id,13)	// Green
-			ITEM_AUX(Tile::stained_glass_pane_Id,12)	// Brown
 		}
 #endif
 
@@ -357,7 +321,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Tile::anvil_Id);
 		ITEM(Item::bed_Id)
 		ITEM(Item::bucket_empty_Id)
-		ITEM(Item::bucket_lava_Id)	
+		ITEM(Item::bucket_lava_Id)
 		ITEM(Item::bucket_water_Id)
 		ITEM(Item::bucket_milk_Id)
 		ITEM(Item::cauldron_Id)
@@ -444,7 +408,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::beef_cooked_Id)
 		ITEM(Item::beef_raw_Id)
 		ITEM(Item::chicken_raw_Id)
-		ITEM(Item::chicken_cooked_Id)		
+		ITEM(Item::chicken_cooked_Id)
 		ITEM(Item::rotten_flesh_Id)
 		ITEM(Item::spiderEye_Id)
 		ITEM(Item::potato_Id)
@@ -466,7 +430,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::pickAxe_wood_Id)
 		ITEM(Item::hatchet_wood_Id)
 		ITEM(Item::hoe_wood_Id)
-		
+
 		ITEM(Item::emptyMap_Id)
 		ITEM(Item::helmet_chain_Id)
 		ITEM(Item::chestplate_chain_Id)
@@ -477,7 +441,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::pickAxe_stone_Id)
 		ITEM(Item::hatchet_stone_Id)
 		ITEM(Item::hoe_stone_Id)
-		
+
 		ITEM(Item::bow_Id)
 		ITEM(Item::helmet_iron_Id)
 		ITEM(Item::chestplate_iron_Id)
@@ -488,7 +452,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::pickAxe_iron_Id)
 		ITEM(Item::hatchet_iron_Id)
 		ITEM(Item::hoe_iron_Id)
-		
+
 		ITEM(Item::arrow_Id)
 		ITEM(Item::helmet_gold_Id)
 		ITEM(Item::chestplate_gold_Id)
@@ -550,7 +514,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::brick_Id)
 		ITEM(Item::netherbrick_Id)
 		ITEM(Item::stick_Id)
-		ITEM(Item::bowl_Id)		
+		ITEM(Item::bowl_Id)
 		ITEM(Item::bone_Id)
 		ITEM(Item::string_Id)
 		ITEM(Item::feather_Id)
@@ -559,13 +523,13 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::gunpowder_Id)
 		ITEM(Item::clay_Id)
 		ITEM(Item::yellowDust_Id)
-		ITEM(Item::seeds_wheat_Id)	
+		ITEM(Item::seeds_wheat_Id)
 		ITEM(Item::seeds_melon_Id)
 		ITEM(Item::seeds_pumpkin_Id)
 		ITEM(Item::wheat_Id)
 		ITEM(Item::reeds_Id)
 		ITEM(Item::egg_Id)
-		ITEM(Item::sugar_Id)		
+		ITEM(Item::sugar_Id)
 		ITEM(Item::slimeBall_Id)
 		ITEM(Item::blazeRod_Id)
 		ITEM(Item::goldNugget_Id)
@@ -598,7 +562,7 @@ void IUIScene_CreativeMenu::staticCtor()
 		ITEM(Item::magmaCream_Id)
 		ITEM(Item::speckledMelon_Id)
 		ITEM(Item::glassBottle_Id)
-		ITEM_AUX(Item::potion_Id,0) // Water bottle		
+		ITEM_AUX(Item::potion_Id,0) // Water bottle
 		//ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, 0, MASK_TYPE_AWKWARD)) // Awkward Potion
 
 
@@ -630,7 +594,7 @@ void IUIScene_CreativeMenu::staticCtor()
 			//ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, MASK_LEVEL2, MASK_INSTANTHEALTH))
 			//ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, MASK_LEVEL2, MASK_NIGHTVISION))
 			//ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, MASK_LEVEL2, MASK_INVISIBILITY))
-			
+
 			ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, 0, MASK_WEAKNESS))
 			ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, MASK_LEVEL2, MASK_STRENGTH))
 			ITEM_AUX(Item::potion_Id,MACRO_MAKEPOTION_AUXVAL(0, 0, MASK_SLOWNESS))
@@ -705,7 +669,7 @@ void IUIScene_CreativeMenu::staticCtor()
 	// Top Row
 	ECreative_Inventory_Groups blocksGroup[] = {eCreativeInventory_BuildingBlocks};
 	specs[eCreativeInventoryTab_BuildingBlocks] = new TabSpec(L"Structures", IDS_GROUPNAME_BUILDING_BLOCKS, 1, blocksGroup);
-	
+
 #ifndef _CONTENT_PACKAGE
 	ECreative_Inventory_Groups decorationsGroup[] = {eCreativeInventory_Decoration};
 	ECreative_Inventory_Groups debugDecorationsGroup[] = {eCreativeInventory_ArtToolsDecorations};
@@ -756,7 +720,7 @@ IUIScene_CreativeMenu::IUIScene_CreativeMenu()
 	m_creativeSlotX = m_creativeSlotY = m_inventorySlotX = m_inventorySlotY = 0;
 
 	// 4J JEV - Settup Tabs
-	for (int i = 0; i < eCreativeInventoryTab_COUNT; i++) 
+	for (int i = 0; i < eCreativeInventoryTab_COUNT; i++)
 	{
 		m_tabDynamicPos[i] = 0;
 		m_tabPage[i] = 0;
@@ -771,7 +735,7 @@ void IUIScene_CreativeMenu::switchTab(ECreativeInventoryTabs tab)
 	if(tab != m_curTab) updateTabHighlightAndText(tab);
 
 	m_curTab = tab;
-	
+
 	updateScrollCurrentPage(m_tabPage[m_curTab] + 1, specs[m_curTab]->getPageCount());
 
 	specs[tab]->populateMenu(itemPickerMenu,m_tabDynamicPos[m_curTab], m_tabPage[m_curTab]);
@@ -805,7 +769,7 @@ void IUIScene_CreativeMenu::ScrollBar(UIVec2D pointerPos)
 IUIScene_CreativeMenu::TabSpec::TabSpec(LPCWSTR icon, int descriptionId, int staticGroupsCount, ECreative_Inventory_Groups *staticGroups, int dynamicGroupsCount, ECreative_Inventory_Groups *dynamicGroups, int debugGroupsCount /*= 0*/, ECreative_Inventory_Groups *debugGroups /*= NULL*/)
 	: m_icon(icon), m_descriptionId(descriptionId), m_staticGroupsCount(staticGroupsCount), m_dynamicGroupsCount(dynamicGroupsCount), m_debugGroupsCount(debugGroupsCount)
 {
-	
+
 	m_pages = 0;
 	m_staticGroupsA = NULL;
 
@@ -864,8 +828,8 @@ void IUIScene_CreativeMenu::TabSpec::populateMenu(AbstractContainerMenu *menu, i
 	// Fill the dynamic group
 	if(m_dynamicGroupsCount > 0 && m_dynamicGroupsA != NULL)
 	{
-		for(AUTO_VAR(it, categoryGroups[m_dynamicGroupsA[dynamicIndex]].rbegin()); it != categoryGroups[m_dynamicGroupsA[dynamicIndex]].rend() && lastSlotIndex < MAX_SIZE; ++it)
-		{
+        for (auto it = categoryGroups[m_dynamicGroupsA[dynamicIndex]].rbegin(); it != categoryGroups[m_dynamicGroupsA[dynamicIndex]].rend() && lastSlotIndex < MAX_SIZE; ++it)
+        {
 			Slot *slot = menu->getSlot(++lastSlotIndex);
 			slot->set( *it );
 		}
@@ -882,7 +846,7 @@ void IUIScene_CreativeMenu::TabSpec::populateMenu(AbstractContainerMenu *menu, i
 	for(; currentGroup < m_staticGroupsCount; ++currentGroup)
 	{
 		int size = categoryGroups[m_staticGroupsA[currentGroup]].size();
-		if( currentIndex + size < startIndex)
+		if( currentIndex + size <= startIndex)
 		{
 			currentIndex += size;
 			continue;
@@ -932,7 +896,7 @@ void IUIScene_CreativeMenu::TabSpec::populateMenu(AbstractContainerMenu *menu, i
 			for(; currentGroup < m_debugGroupsCount; ++currentGroup)
 			{
 				int size = categoryGroups[m_debugGroupsA[currentGroup]].size();
-				if( currentIndex + size < startIndex)
+				if( currentIndex + size <= startIndex)
 				{
 					currentIndex += size;
 					continue;
@@ -973,7 +937,9 @@ unsigned int IUIScene_CreativeMenu::TabSpec::getPageCount()
 #ifndef _CONTENT_PACKAGE
 	if(app.DebugArtToolsOn())
 	{
-		return (int)ceil((float)(m_staticItems + m_debugItems) / m_staticPerPage);
+		int totalItems = m_staticItems + m_debugItems;
+		const int totalRows = (totalItems + columns - 1) / columns;
+		return std::max<int>(1, totalRows - rows + 1);
 	}
 	else
 #endif
@@ -987,7 +953,7 @@ unsigned int IUIScene_CreativeMenu::TabSpec::getPageCount()
 IUIScene_CreativeMenu::ItemPickerMenu::ItemPickerMenu(	shared_ptr<SimpleContainer> smp, shared_ptr<Inventory> inv ) : AbstractContainerMenu()
 {
 	inventory = inv;
-	creativeContainer = smp; 
+	creativeContainer = smp;
 
 	//int startLength = slots->size();
 
@@ -1028,7 +994,7 @@ IUIScene_AbstractContainerMenu::ESceneSection IUIScene_CreativeMenu::GetSectionA
 	switch( eSection )
 	{
 	case eSectionInventoryCreativeSelector:
-		if (eTapDirection == eTapStateDown || eTapDirection == eTapStateUp) 
+		if (eTapDirection == eTapStateDown || eTapDirection == eTapStateUp)
 		{
 			newSection = eSectionInventoryCreativeUsing;
 		}
@@ -1115,7 +1081,7 @@ void IUIScene_CreativeMenu::handleAdditionalKeyPress(int iAction)
 		dir = -1;
 		// Fall through intentional
 	case ACTION_MENU_RIGHT_SCROLL:
-		{		
+		{
 			ECreativeInventoryTabs tab = (ECreativeInventoryTabs)(m_curTab + dir);
 			if (tab < 0) tab = (ECreativeInventoryTabs)(eCreativeInventoryTab_COUNT - 1);
 			if (tab >= eCreativeInventoryTab_COUNT) tab = eCreativeInventoryTab_BuildingBlocks;
@@ -1132,7 +1098,15 @@ void IUIScene_CreativeMenu::handleAdditionalKeyPress(int iAction)
 		}
 		break;
 	case ACTION_MENU_OTHER_STICK_DOWN:
-			++m_tabPage[m_curTab];
+		{
+			int pageStep = TabSpec::rows;
+#ifdef _WINDOWS64
+			if (g_KBMInput.WasMouseWheelConsumed())
+			{
+				pageStep = 1;
+			}
+#endif
+			m_tabPage[m_curTab] += pageStep;
 			if(m_tabPage[m_curTab] >= specs[m_curTab]->getPageCount())
 			{
 				m_tabPage[m_curTab] = specs[m_curTab]->getPageCount() - 1;
@@ -1141,9 +1115,18 @@ void IUIScene_CreativeMenu::handleAdditionalKeyPress(int iAction)
 			{
 				switchTab(m_curTab);
 			}
+		}
 		break;
 	case ACTION_MENU_OTHER_STICK_UP:
-			--m_tabPage[m_curTab];
+		{
+			int pageStep = TabSpec::rows;
+#ifdef _WINDOWS64
+			if (g_KBMInput.WasMouseWheelConsumed())
+			{
+				pageStep = 1;
+			}
+#endif
+			m_tabPage[m_curTab] -= pageStep;
 			if(m_tabPage[m_curTab] < 0)
 			{
 				m_tabPage[m_curTab] = 0;
@@ -1152,6 +1135,7 @@ void IUIScene_CreativeMenu::handleAdditionalKeyPress(int iAction)
 			{
 				switchTab(m_curTab);
 			}
+		}
 		break;
 	}
 }
@@ -1391,7 +1375,7 @@ void IUIScene_CreativeMenu::BuildFirework(vector<shared_ptr<ItemInstance> > *lis
 		itemTag->put(FireworksItem::TAG_FIREWORKS, fireTag);
 
 		firework->setTag(itemTag);
-	}			
+	}
 
 	list->push_back(firework);
 }

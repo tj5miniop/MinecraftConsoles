@@ -79,7 +79,7 @@
 //#define DEBUG_RENDER_SHOWS_PACKETS 1
 //#define SPLITSCREEN_TEST
 
-// If not disabled, this creates an event queue on a seperate thread so that the Level::tick calls can be offloaded 
+// If not disabled, this creates an event queue on a seperate thread so that the Level::tick calls can be offloaded
 // from the main thread, and have longer to run, since it's called at 20Hz instead of 60
 #define DISABLE_LEVELTICK_THREAD
 
@@ -96,7 +96,7 @@ TOUCHSCREENRECT QuickSelectRect[3]=
 {
 	{ 560, 890, 1360, 980 },
 	{ 450, 840, 1449, 960 },
-	{ 320, 840, 1600, 970 },		
+	{ 320, 840, 1600, 970 },
 };
 
 int QuickSelectBoxWidth[3]=
@@ -502,6 +502,13 @@ void Minecraft::setScreen(Screen *screen)
 		this->screen->removed();
 	}
 
+#ifdef _WINDOWS64
+	if (screen != NULL && g_KBMInput.IsMouseGrabbed())
+	{
+		g_KBMInput.SetMouseGrabbed(false);
+	}
+#endif
+
 	//4J Gordon: Do not force a stats save here
 	/*if (dynamic_cast<TitleScreen *>(screen)!=NULL)
 	{
@@ -734,7 +741,7 @@ void Minecraft::run()
 
 		while (System::currentTimeMillis() >= lastTime + 1000)
 		{
-			fpsString = _toString<int>(frames) + L" fps, " + _toString<int>(Chunk::updates) + L" chunk updates";
+			fpsString = std::to_wstring(frames) + L" fps, " + std::to_wstring(Chunk::updates) + L" chunk updates";
 			Chunk::updates = 0;
 			lastTime += 1000;
 			frames = 0;
@@ -1184,11 +1191,11 @@ void Minecraft::applyFrameMouseLook()
 		int iPad = localplayers[i]->GetXboxPad();
 		if (iPad != 0) continue;  // Mouse only applies to pad 0
 
-		if (!KMInput.IsCaptured()) continue;
+		if (!g_KBMInput.IsMouseGrabbed()) continue;
 		if (localgameModes[iPad] == NULL) continue;
 
 		float rawDx, rawDy;
-		KMInput.ConsumeMouseDelta(rawDx, rawDy);
+		g_KBMInput.ConsumeMouseDelta(rawDx, rawDy);
 		if (rawDx == 0.0f && rawDy == 0.0f) continue;
 
 		float mouseSensitivity = ((float)app.GetGameSettings(iPad, eGameSetting_Sensitivity_InGame)) / 100.0f;
@@ -1279,7 +1286,7 @@ void Minecraft::run_middle()
 								if( pDLCPack )
 								{
 									if(!pDLCPack->hasPurchasedFile( DLCManager::e_DLCType_Texture, L"" ))
-									{			
+									{
 										bTrialTexturepack=true;
 									}
 								}
@@ -1401,7 +1408,7 @@ void Minecraft::run_middle()
 				{
 					delete m_pPsPlusUpsell;
 					m_pPsPlusUpsell = NULL;
-								
+
 					if ( ProfileManager.HasPlayStationPlus(i) )
 					{
 						app.DebugPrintf("<Minecraft.cpp> Player_%i is now authorised for PsPlus.\n", i);
@@ -1450,14 +1457,54 @@ void Minecraft::run_middle()
 					// Keyboard/mouse button presses for player 0
 					if (i == 0)
 					{
-						if (KMInput.ConsumeKeyPress(VK_ESCAPE))  localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_PAUSEMENU;
-						if (KMInput.ConsumeKeyPress('E'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_INVENTORY;
-						if (KMInput.ConsumeKeyPress('Q'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_DROP;
-						if (KMInput.ConsumeKeyPress('C'))         localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_CRAFTING;
-						if (KMInput.ConsumeKeyPress(VK_F5))       localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_RENDER_THIRD_PERSON;
+						if (g_KBMInput.IsKBMActive())
+						{
+							if(g_KBMInput.IsMouseButtonPressed(KeyboardMouseInput::MOUSE_LEFT))
+								localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_ACTION;
+
+							if(g_KBMInput.IsMouseButtonPressed(KeyboardMouseInput::MOUSE_RIGHT))
+								localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_USE;
+
+							if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_INVENTORY))
+								localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_INVENTORY;
+
+							if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_DROP))
+								localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_DROP;
+
+							if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_CRAFTING) || g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_CRAFTING_ALT))
+								localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_CRAFTING;
+
+							for (int slot = 0; slot < 9; slot++)
+							{
+								if (g_KBMInput.IsKeyPressed('1' + slot))
+								{
+									if (localplayers[i]->inventory)
+										localplayers[i]->inventory->selected = slot;
+								}
+							}
+						}
+
+						// Utility keys always work regardless of KBM active state
+						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_PAUSE) && !ui.IsTutorialVisible(i) && !ui.GetMenuDisplayed(i))
+						{
+							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_PAUSEMENU;
+							app.DebugPrintf("PAUSE PRESSED (keyboard) - ipad = %d\n",i);
+						}
+
+						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_THIRD_PERSON))
+							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_RENDER_THIRD_PERSON;
+
+						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_DEBUG_MENU))
+						{
+							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_RENDER_DEBUG;
+						}
+
 						// In flying mode, Shift held = sneak/descend
-						if (localplayers[i]->abilities.flying && KMInput.IsKeyDown(VK_SHIFT) && !ui.GetMenuDisplayed(i))
-							localplayers[i]->ullButtonsPressed |= 1LL<<MINECRAFT_ACTION_SNEAK_TOGGLE;
+						if(g_KBMInput.IsKBMActive() && g_KBMInput.IsKeyDown(KeyboardMouseInput::KEY_SNEAK))
+						{
+							if (localplayers[i]->abilities.flying && !ui.GetMenuDisplayed(i))
+								localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_SNEAK_TOGGLE;
+						}
 					}
 #endif
 
@@ -1987,7 +2034,7 @@ void Minecraft::run_middle()
 			while (System::nanoTime() >= lastTime + 1000000000)
 			{
 				MemSect(31);
-				fpsString = _toString<int>(frames) + L" fps, " + _toString<int>(Chunk::updates) + L" chunk updates";
+				fpsString = std::to_wstring(frames) + L" fps, " + std::to_wstring(Chunk::updates) + L" chunk updates";
 				MemSect(0);
 				Chunk::updates = 0;
 				lastTime += 1000000000;
@@ -2184,7 +2231,7 @@ void Minecraft::levelTickThreadInitFunc()
 {
 	AABB::CreateNewThreadStorage();
 	Vec3::CreateNewThreadStorage();
-	IntCache::CreateNewThreadStorage();	
+	IntCache::CreateNewThreadStorage();
 	Compression::UseDefaultThreadStorage();
 }
 
@@ -2277,8 +2324,21 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 		}
 	}
 
+#ifdef _WINDOWS64
+	if ((screen != NULL || ui.GetMenuDisplayed(iPad)) && g_KBMInput.IsMouseGrabbed())
+	{
+		g_KBMInput.SetMouseGrabbed(false);
+	}
+#endif
+
 	if (screen == NULL && !ui.GetMenuDisplayed(iPad) )
 	{
+#ifdef _WINDOWS64
+		if (!g_KBMInput.IsMouseGrabbed() && g_KBMInput.IsWindowFocused())
+		{
+			g_KBMInput.SetMouseGrabbed(true);
+		}
+#endif
 		// 4J-PB - add some tooltips if required
 		int iA=-1, iB=-1, iX, iY=IDS_CONTROLS_INVENTORY, iLT=-1, iRT=-1, iLB=-1, iRB=-1, iLS=-1, iRS=-1;
 
@@ -2801,10 +2861,10 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 					shared_ptr<ItemInstance> heldItem = nullptr;
 					if (player->inventory->IsHeldItem())
 					{
-						heldItem = player->inventory->getSelected();		
+						heldItem = player->inventory->getSelected();
 					}
 					int heldItemId = heldItem != NULL ? heldItem->getItem()->id : -1;
-					
+
 					switch(entityType)
 					{
 					case eTYPE_CHICKEN:
@@ -2846,7 +2906,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 					case eTYPE_COW:
 						{
 							if(player->isAllowedToAttackAnimals()) *piAction=IDS_TOOLTIPS_HIT;
-						
+
 							shared_ptr<Animal> animal = dynamic_pointer_cast<Animal>(hitResult->entity);
 
 							if (animal->isLeashed() && animal->getLeashHolder() == player)
@@ -2910,7 +2970,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 									*piUse=IDS_TOOLTIPS_MILK;
 									break;
 								case Item::shears_Id:
-									{								
+									{
 										if(player->isAllowedToAttackAnimals()) *piAction=IDS_TOOLTIPS_HIT;
 										if(!animal->isBaby()) *piUse=IDS_TOOLTIPS_SHEAR;
 									}
@@ -2938,10 +2998,10 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 						*piAction = IDS_TOOLTIPS_MINE;
 						*piUse = IDS_TOOLTIPS_RIDE; // are we in the minecart already? - 4J-JEV: Doesn't matter anymore.
 						break;
-						
+
 					case eTYPE_MINECART_FURNACE:
 						*piAction = IDS_TOOLTIPS_MINE;
-						
+
 						// if you have coal, it'll go. Is there an object in hand?
 						if (heldItemId == Item::coal_Id) *piUse=IDS_TOOLTIPS_USE;
 						break;
@@ -3022,7 +3082,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 							if(player->isAllowedToAttackAnimals()) *piAction=IDS_TOOLTIPS_HIT;
 
 							shared_ptr<Pig> pig = dynamic_pointer_cast<Pig>(hitResult->entity);
-							
+
 							if (pig->isLeashed() && pig->getLeashHolder() == player)
 							{
 								*piUse=IDS_TOOLTIPS_UNLEASH;
@@ -3165,7 +3225,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 							shared_ptr<Ocelot> ocelot = dynamic_pointer_cast<Ocelot>(hitResult->entity);
 
 							if(player->isAllowedToAttackAnimals()) *piAction=IDS_TOOLTIPS_HIT;
-						
+
 							if (ocelot->isLeashed() && ocelot->getLeashHolder() == player)
 							{
 								*piUse = IDS_TOOLTIPS_UNLEASH;
@@ -3194,7 +3254,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 										}
 										else
 										{
-											*piUse=IDS_TOOLTIPS_FEED;									
+											*piUse=IDS_TOOLTIPS_FEED;
 										}
 									}
 
@@ -3217,7 +3277,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 							}
 						}
 						break;
-						
+
 					case eTYPE_PLAYER:
 						{
 							// Fix for #58576 - TU6: Content: Gameplay: Hit button prompt is available when attacking a host who has "Invisible" option turned on
@@ -3283,9 +3343,9 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 					case eTYPE_HORSE:
 						{
 							shared_ptr<EntityHorse> horse = dynamic_pointer_cast<EntityHorse>(hitResult->entity);
-							
+
 							bool heldItemIsFood = false, heldItemIsLove = false, heldItemIsArmour = false;
-							
+
 							switch( heldItemId )
 							{
 								case Item::wheat_Id:
@@ -3340,7 +3400,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 									*piUse = IDS_TOOLTIPS_FEED;
 								}
 							}
-							else if (	player->isSneaking() 
+							else if (	player->isSneaking()
 									||	(heldItemId == Item::saddle_Id)
 									||	(horse->canWearArmor() && heldItemIsArmour)
 									)
@@ -3349,7 +3409,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 								if (*piUse == -1) *piUse = IDS_TOOLTIPS_OPEN;
 							}
 							else if (	horse->canWearBags()
-									&&	!horse->isChestedHorse() 
+									&&	!horse->isChestedHorse()
 									&&	(heldItemId == Tile::chest_Id) )
 							{
 								// 4j - Attach saddle-bags (chest) to donkey or mule.
@@ -3371,7 +3431,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 								// 4j - Ride tamed horse.
 								*piUse = IDS_TOOLTIPS_MOUNT;
 							}
-							
+
 							if (player->isAllowedToAttackAnimals()) *piAction=IDS_TOOLTIPS_HIT;
 						}
 						break;
@@ -3411,7 +3471,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 							}
 						}
 						*piAction=IDS_TOOLTIPS_HIT;
-						break;	
+						break;
 					}
 					break;
 				}
@@ -3432,26 +3492,9 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 		}
 
 #ifdef _WINDOWS64
-		// Mouse scroll wheel for hotbar
-		if (iPad == 0)
+		if (iPad == 0 && wheel == 0 && g_KBMInput.IsKBMActive())
 		{
-			int kbWheel = KMInput.ConsumeScrollDelta();
-			if (kbWheel > 0 && gameMode->isInputAllowed(MINECRAFT_ACTION_LEFT_SCROLL)) wheel += 1;
-			else if (kbWheel < 0 && gameMode->isInputAllowed(MINECRAFT_ACTION_RIGHT_SCROLL)) wheel -= 1;
-
-			// 1-9 keys for direct hotbar selection
-			if (gameMode->isInputAllowed(MINECRAFT_ACTION_LEFT_SCROLL))
-			{
-				for (int k = '1'; k <= '9'; k++)
-				{
-					if (KMInput.ConsumeKeyPress(k))
-					{
-						player->inventory->selected = k - '1';
-						app.SetOpacityTimer(iPad);
-						break;
-					}
-				}
-			}
+			wheel = g_KBMInput.GetMouseWheel();
 		}
 #endif
 		if (wheel != 0)
@@ -3485,33 +3528,20 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 				player->handleMouseClick(0);
 				player->lastClickTick[0] = ticks;
 			}
-#ifdef _WINDOWS64
-			else if (iPad == 0 && KMInput.IsCaptured() && KMInput.ConsumeMousePress(0))
-			{
-				player->handleMouseClick(0);
-				player->lastClickTick[0] = ticks;
-			}
-#endif
 
-			if (InputManager.ButtonDown(iPad, MINECRAFT_ACTION_ACTION) && ticks - player->lastClickTick[0] >= timer->ticksPerSecond / 4)
+#ifdef _WINDOWS64
+			bool actionHeld = InputManager.ButtonDown(iPad, MINECRAFT_ACTION_ACTION) || (iPad == 0 && g_KBMInput.IsKBMActive() && g_KBMInput.IsMouseButtonDown(KeyboardMouseInput::MOUSE_LEFT));
+#else
+			bool actionHeld = InputManager.ButtonDown(iPad, MINECRAFT_ACTION_ACTION);
+#endif
+			if (actionHeld && ticks - player->lastClickTick[0] >= timer->ticksPerSecond / 4)
 			{
 				//printf("MINECRAFT_ACTION_ACTION ButtonDown");
 				player->handleMouseClick(0);
 				player->lastClickTick[0] = ticks;
 			}
-#ifdef _WINDOWS64
-			else if (iPad == 0 && KMInput.IsCaptured() && KMInput.IsMouseDown(0) && ticks - player->lastClickTick[0] >= timer->ticksPerSecond / 4)
-			{
-				player->handleMouseClick(0);
-				player->lastClickTick[0] = ticks;
-			}
-#endif
 
-			if(InputManager.ButtonDown(iPad, MINECRAFT_ACTION_ACTION)
-#ifdef _WINDOWS64
-				|| (iPad == 0 && KMInput.IsCaptured() && KMInput.IsMouseDown(0))
-#endif
-			)
+			if(actionHeld)
 			{
 				player->handleMouseDown(0, true );
 			}
@@ -3530,25 +3560,21 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 		lastClickTick = ticks;
 		}
 		*/
+#ifdef _WINDOWS64
+		bool useHeld = InputManager.ButtonDown(iPad, MINECRAFT_ACTION_USE) || (iPad == 0 && g_KBMInput.IsKBMActive() && g_KBMInput.IsMouseButtonDown(KeyboardMouseInput::MOUSE_RIGHT));
+#else
+		bool useHeld = InputManager.ButtonDown(iPad, MINECRAFT_ACTION_USE);
+#endif
 		if( player->isUsingItem() )
 		{
-			if(!InputManager.ButtonDown(iPad, MINECRAFT_ACTION_USE)
-#ifdef _WINDOWS64
-				&& !(iPad == 0 && KMInput.IsCaptured() && KMInput.IsMouseDown(1))
-#endif
-			) gameMode->releaseUsingItem(player);
+			if(!useHeld) gameMode->releaseUsingItem(player);
 		}
 		else if( gameMode->isInputAllowed(MINECRAFT_ACTION_USE) )
 		{
-#ifdef _WINDOWS64
-			bool useButtonDown = InputManager.ButtonDown(iPad, MINECRAFT_ACTION_USE) || (iPad == 0 && KMInput.IsCaptured() && KMInput.IsMouseDown(1));
-#else
-			bool useButtonDown = InputManager.ButtonDown(iPad, MINECRAFT_ACTION_USE);
-#endif
 			if( player->abilities.instabuild )
 			{
 				// 4J - attempt to handle click in special creative mode fashion if possible (used for placing blocks at regular intervals)
-				bool didClick = player->creativeModeHandleMouseClick(1, useButtonDown );
+				bool didClick = player->creativeModeHandleMouseClick(1, useHeld );
 				// If this handler has put us in lastClick_oldRepeat mode then it is because we aren't placing blocks - behave largely as the code used to
 				if( player->lastClickState == LocalPlayer::lastClick_oldRepeat )
 				{
@@ -3560,7 +3586,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 					else
 					{
 						// Otherwise just the original game code for handling autorepeat
-						if (useButtonDown && ticks - player->lastClickTick[1] >= timer->ticksPerSecond / 4)
+						if (useHeld && ticks - player->lastClickTick[1] >= timer->ticksPerSecond / 4)
 						{
 							player->handleMouseClick(1);
 							player->lastClickTick[1] = ticks;
@@ -3576,7 +3602,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 				bool firstClick = ( player->lastClickTick[1] == 0 );
 				bool autoRepeat = ticks - player->lastClickTick[1] >= timer->ticksPerSecond / 4;
 				if ( player->isRiding() || player->isSprinting() || player->isSleeping() ) autoRepeat = false;
-				if (useButtonDown )
+				if (useHeld )
 				{
 					// If the player has just exited a bed, then delay the time before a repeat key is allowed without releasing
 					if(player->isSleeping() ) player->lastClickTick[1] = ticks + (timer->ticksPerSecond * 2);
@@ -3618,8 +3644,6 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 				if((player->ullButtonsPressed&(1LL<<MINECRAFT_ACTION_RENDER_DEBUG)) )
 				{
 #ifndef _CONTENT_PACKAGE
-
-					options->renderDebug = !options->renderDebug;
 #ifdef _XBOX
 					app.EnableDebugOverlay(options->renderDebug,iPad);
 #else
@@ -3629,13 +3653,11 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 #endif
 				}
 
-				if((player->ullButtonsPressed&(1LL<<MINECRAFT_ACTION_SPAWN_CREEPER)) && app.GetMobsDontAttackEnabled())
-				{
-					//shared_ptr<Mob> mob = dynamic_pointer_cast<Mob>(Creeper::_class->newInstance( level ));
-					//shared_ptr<Mob> mob = dynamic_pointer_cast<Mob>(Wolf::_class->newInstance( level ));
-					shared_ptr<Mob> mob = dynamic_pointer_cast<Mob>(shared_ptr<Spider>(new Spider( level )));
-					mob->moveTo(player->x+1, player->y, player->z+1, level->random->nextFloat() * 360, 0);
-					level->addEntity(mob);
+				if((player->ullButtonsPressed&(1LL<<MINECRAFT_ACTION_SPAWN_CREEPER)))
+                {
+#ifndef _CONTENT_PACKAGE
+                    options->renderDebug = !options->renderDebug;
+#endif
 				}
 			}
 
@@ -3644,7 +3666,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 				player->abilities.debugflying = !player->abilities.debugflying;
 				player->abilities.flying = !player->abilities.flying;
 			}
-#endif // PSVITA		
+#endif // PSVITA
 		}
 #endif
 
@@ -3721,7 +3743,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 		}
 
 		__uint64 ullButtonsPressed=player->ullButtonsPressed;
-		
+
 		bool selected = false;
 #ifdef __PSVITA__
 		// 4J-PB - use the touchscreen for quickselect
@@ -3746,7 +3768,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 			shared_ptr<ItemInstance> selectedItem = player->getSelectedItem();
 			// Dropping items happens over network, so if we only have one then assume that we dropped it and should hide the item
 			int iCount=0;
-			
+
 			if(selectedItem != NULL) iCount=selectedItem->GetCount();
 			if(selectedItem != NULL && !( (player->ullButtonsPressed&(1LL<<MINECRAFT_ACTION_DROP)) && selectedItem->GetCount() == 1))
 			{
@@ -4055,7 +4077,7 @@ void Minecraft::tick(bool bFirst, bool bUpdateTextures)
 	}
 #ifdef __PS3__
 
-// 	while(!g_tickLevelQueue.empty()) 
+// 	while(!g_tickLevelQueue.empty())
 // 	{
 // 		Level* pLevel = g_tickLevelQueue.front();
 // 		g_tickLevelQueue.pop();
@@ -4283,7 +4305,7 @@ void Minecraft::setLevel(MultiPlayerLevel *level, int message /*=-1*/, shared_pt
 
 			player->resetPos();
 			gameMode->initPlayer(player);
-			
+
 			player->SetXboxPad(iPrimaryPlayer);
 
 			for(int i=0;i<XUSER_MAX_COUNT;i++)
@@ -4410,7 +4432,7 @@ void Minecraft::prepareLevel(int title)
 wstring Minecraft::gatherStats1()
 {
 	//return levelRenderer->gatherStats1();
-	return L"Time to autosave: " + _toString<unsigned int>( app.SecondsToAutosave() ) + L"s";
+	return L"Time to autosave: " + std::to_wstring( app.SecondsToAutosave() ) + L"s";
 }
 
 wstring Minecraft::gatherStats2()
@@ -4588,7 +4610,7 @@ void Minecraft::startAndConnectTo(const wstring& name, const wstring& sid, const
 		}
 		else
 		{
-			minecraft->user = new User(L"Player" + _toString<int>(System::currentTimeMillis() % 1000), L"");
+			minecraft->user = new User(L"Player" + std::to_wstring(System::currentTimeMillis() % 1000), L"");
 		}
 	}
 	//else
@@ -4669,7 +4691,7 @@ void Minecraft::main()
 	}
 
 	app.DebugPrintf("\n\n\n\n\n");
-	
+
 	for(unsigned int i = 0; i < 256; ++i)
 	{
 		if(Tile::tiles[i] != NULL)
@@ -4683,7 +4705,7 @@ void Minecraft::main()
 	// 4J-PB - Can't call this for the first 5 seconds of a game - MS rule
 	//if (ProfileManager.IsFullVersion())
 	{
-		name = L"Player" + _toString<__int64>(System::currentTimeMillis() % 1000);
+		name = L"Player" + std::to_wstring(System::currentTimeMillis() % 1000);
 		sessionId = L"-";
 		/* 4J - TODO - get a session ID from somewhere?
 		if (args.length > 0) name = args[0];
@@ -5084,8 +5106,8 @@ void Minecraft::tickAllConnections()
 
 bool Minecraft::addPendingClientTextureRequest(const wstring &textureName)
 {
-	AUTO_VAR(it, find( m_pendingTextureRequests.begin(), m_pendingTextureRequests.end(), textureName));
-	if( it == m_pendingTextureRequests.end() )
+    auto it = find(m_pendingTextureRequests.begin(), m_pendingTextureRequests.end(), textureName);
+    if( it == m_pendingTextureRequests.end() )
 	{
 		m_pendingTextureRequests.push_back(textureName);
 		return true;
@@ -5095,8 +5117,8 @@ bool Minecraft::addPendingClientTextureRequest(const wstring &textureName)
 
 void Minecraft::handleClientTextureReceived(const wstring &textureName)
 {
-	AUTO_VAR(it, find( m_pendingTextureRequests.begin(), m_pendingTextureRequests.end(), textureName));
-	if( it != m_pendingTextureRequests.end() )
+    auto it = find(m_pendingTextureRequests.begin(), m_pendingTextureRequests.end(), textureName);
+    if( it != m_pendingTextureRequests.end() )
 	{
 		m_pendingTextureRequests.erase(it);
 	}
@@ -5126,8 +5148,8 @@ int Minecraft::MustSignInReturnedPSN(void *pParam, int iPad, C4JStorage::EMessag
 {
 	Minecraft* pMinecraft = (Minecraft *)pParam;
 
-	if(result == C4JStorage::EMessage_ResultAccept) 
-	{        
+	if(result == C4JStorage::EMessage_ResultAccept)
+	{
 		SQRNetworkManager_Orbis::AttemptPSNSignIn(&Minecraft::InGame_SignInReturned, pMinecraft, false, iPad);
 	}
 
