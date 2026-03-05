@@ -1485,7 +1485,7 @@ void Minecraft::run_middle()
 						}
 
 						// Utility keys always work regardless of KBM active state
-						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_PAUSE) && !ui.IsTutorialVisible(i))
+						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_PAUSE) && !ui.IsTutorialVisible(i) && !ui.GetMenuDisplayed(i))
 						{
 							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_PAUSEMENU;
 							app.DebugPrintf("PAUSE PRESSED (keyboard) - ipad = %d\n",i);
@@ -1494,9 +1494,9 @@ void Minecraft::run_middle()
 						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_THIRD_PERSON))
 							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_RENDER_THIRD_PERSON;
 
-						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_DEBUG_INFO))
+						if(g_KBMInput.IsKeyPressed(KeyboardMouseInput::KEY_DEBUG_MENU))
 						{
-							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_GAME_INFO;
+							localplayers[i]->ullButtonsPressed|=1LL<<MINECRAFT_ACTION_RENDER_DEBUG;
 						}
 
 						// In flying mode, Shift held = sneak/descend
