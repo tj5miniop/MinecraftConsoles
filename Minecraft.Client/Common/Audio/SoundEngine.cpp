@@ -188,6 +188,9 @@ void SoundEngine::init(Options* pOptions)
 
     app.DebugPrintf("---miniaudio initialized\n");
 
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+
     return;
 }
 
@@ -265,6 +268,7 @@ void SoundEngine::updateMiniAudio()
             finalVolume = 1.0f;
 
         ma_sound_set_volume(&s->sound, finalVolume);
+		printf("Sound volume set to %f\n", finalVolume);
 
         ma_sound_set_pitch(&s->sound, s->info.pitch);
 
@@ -649,6 +653,7 @@ void SoundEngine::playUI(int iSound, float volume, float pitch)
     float finalVolume = volume * m_MasterEffectsVolume;
     if (finalVolume > 1.0f)
         finalVolume = 1.0f;
+	printf("UI Sound volume set to %f\nEffects volume: %f\n", finalVolume, m_MasterEffectsVolume);
 
     ma_sound_set_volume(&s->sound, finalVolume);
     ma_sound_set_pitch(&s->sound, pitch);
