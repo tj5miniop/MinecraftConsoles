@@ -188,6 +188,9 @@ void SoundEngine::init(Options* pOptions)
 
     app.DebugPrintf("---miniaudio initialized\n");
 
+	AllocConsole();
+	freopen("CONOUT$", "w", stdout);
+
     return;
 }
 
@@ -260,11 +263,12 @@ void SoundEngine::updateMiniAudio()
             continue;
         }
 
-        float finalVolume = s->info.volume;
+        float finalVolume = s->info.volume * m_MasterEffectsVolume;
         if (finalVolume > 1.0f)
             finalVolume = 1.0f;
 
         ma_sound_set_volume(&s->sound, finalVolume);
+		printf("Sound volume set to %f\n", finalVolume);
 
         if (!s->info.bUseSoundsPitchVal)
         {
@@ -652,6 +656,7 @@ void SoundEngine::playUI(int iSound, float volume, float pitch)
     float finalVolume = volume * m_MasterEffectsVolume;
     if (finalVolume > 1.0f)
         finalVolume = 1.0f;
+	printf("UI Sound volume set to %f\nEffects volume: %f\n", finalVolume, m_MasterEffectsVolume);
 
     ma_sound_set_volume(&s->sound, finalVolume);
     ma_sound_set_pitch(&s->sound, pitch);
@@ -967,14 +972,8 @@ void SoundEngine::playMusicTick()
 // AP - moved to a separate function so it can be called from the mixer callback on Vita
 void SoundEngine::playMusicUpdate() 
 {
-	//return;
-	static bool firstCall = true;
 	static float fMusicVol = 0.0f;
-	if( firstCall )
-	{
-		fMusicVol = getMasterMusicVolume();
-		firstCall = false;
-	}
+	fMusicVol = getMasterMusicVolume();
 
 	switch(m_StreamState)
 	{
@@ -1242,7 +1241,7 @@ void SoundEngine::playMusicUpdate()
 
 			ma_sound_set_pitch(&m_musicStream, m_StreamingAudioInfo.pitch);
 
-			float finalVolume = m_StreamingAudioInfo.volume * m_MasterMusicVolume;
+			float finalVolume = m_StreamingAudioInfo.volume * getMasterMusicVolume();
 
 			ma_sound_set_volume(&m_musicStream, finalVolume);
 			ma_result startResult = ma_sound_start(&m_musicStream);
@@ -1370,14 +1369,11 @@ void SoundEngine::playMusicUpdate()
 				}
 
 				// volume change required?
-				if (fMusicVol != getMasterMusicVolume())
+				if (m_musicStreamActive)
 				{
-					if (m_musicStreamActive)
-					{
-						float finalVolume = m_StreamingAudioInfo.volume * fMusicVol;
+					float finalVolume = m_StreamingAudioInfo.volume * fMusicVol;
 
-						ma_sound_set_volume(&m_musicStream, finalVolume);
-					}
+					ma_sound_set_volume(&m_musicStream, finalVolume);
 				}
 			}
 		}
