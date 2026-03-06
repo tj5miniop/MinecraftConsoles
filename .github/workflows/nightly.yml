@@ -4,21 +4,27 @@ on:
   workflow_dispatch: 
   push:
     branches:
-    - 'main'
-    - 'Test-0303'
-    paths-ignore:
-      - '.gitignore'
-      - '*.md'
-      - '.github/*.md'
+      - 'main'
+      - 'Test-0303'
 
 jobs:
   build:
-    name: Build Windows64
+    name: Build and Release
     runs-on: windows-latest
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v6
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    # NEW: Get the current date in YYYY.MM.DD format
+    - name: Get Current Date
+      id: date
+      run: echo "DATE=$(date +'%Y.%m.%d')" >> $GITHUB_ENV
+      shell: bash
 
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v2
@@ -29,20 +35,29 @@ jobs:
     - name: Zip Build
       run: 7z a -r LCEWindows64.zip ./x64/Release/*
 
-    - name: Update release
-      uses: andelf/nightly-release@main
-
+    - name: Build Changelog
+      id: github_release
+      uses: mikepenz/release-changelog-builder-action@v4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Update Release
+      uses: softprops/action-gh-release@v2
       with:
-        tag_name: nightly
-        name: Nightly Release
-        body: |
-          Requires at least Windows 7 and DirectX 11 compatible GPU to run. Compiled with MSVC v14.44.35207 in Release mode with Whole Program Optimization, as well as `/O2 /Ot /Oi /Ob3 /GF /fp:precise`.
-          
-          # 🚨 First time here? 🚨
-          If you've never downloaded the game before, you need to download `LCEWindows64.zip` and extract it to the folder where you'd like to keep the game. The other files are included in this `.zip` file!
+        # Uses the date as the tag (e.g., 2026.03.06)
+        tag_name: ${{ env.DATE }}
+        name: Nightly Build - ${{ env.DATE }}
+        prerelease: true
         files: |
-            LCEWindows64.zip
-            ./x64/Release/Minecraft.Client.exe
-            ./x64/Release/Minecraft.Client.pdb
+          LCEWindows64.zip
+          ./x64/Release/Minecraft.Client.exe
+          ./x64/Release/Minecraft.Client.pdb
+        body: |
+          # NOTICE - this is a fork of the smartcmd/MinecraftConsoles repo which aims to be more bleeding edge, implementing more features and commiting pull requests before upstream
+          ## 📝 What's Changed
+          ${{ steps.github_release.outputs.changelog }}
+          
+          ---
+          **Build Info:** Compiled on ${{ env.DATE }} (SHA: ${{ github.sha }})
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
