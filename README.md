@@ -1,5 +1,11 @@
 # NOTICE - I am learning C++ so I am not currently contributing to this repo - I am currently keeping it up-to-date with upstream as well as merging upstream pull requests for certain features - think of this as a little more "bleeding edge"
 
+# Patches included in this branch
+## PR's from upstream 
+https://github.com/smartcmd/MinecraftConsoles/pull/686
+https://github.com/smartcmd/MinecraftConsoles/pull/675
+https://github.com/smartcmd/MinecraftConsoles/pull/670
+
 # MinecraftConsoles
 
 [![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?logo=discord&logoColor=white)](https://discord.gg/jrum7HhegA)
