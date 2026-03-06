@@ -837,6 +837,7 @@ int CMinecraftApp::SetDefaultOptions(C_4JProfile::PROFILESETTINGS *pSettings,con
 	SetGameSettings(iPad,eGameSetting_SoundFXVolume,DEFAULT_VOLUME_LEVEL);
 	SetGameSettings(iPad,eGameSetting_RenderDistance,16);
 	SetGameSettings(iPad,eGameSetting_Gamma,50);
+	SetGameSettings(iPad,eGameSetting_FOV,0);
 
 	// 4J-PB - Don't reset the difficult level if we're in-game
 	if(Minecraft::GetInstance()->level==NULL)
@@ -1332,6 +1333,7 @@ void CMinecraftApp::ApplyGameSettingsChanged(int iPad)
 	ActionGameSettings(iPad,eGameSetting_SoundFXVolume	);
 	ActionGameSettings(iPad,eGameSetting_RenderDistance	);
 	ActionGameSettings(iPad,eGameSetting_Gamma			);
+	ActionGameSettings(iPad,eGameSetting_FOV			);
 	ActionGameSettings(iPad,eGameSetting_Difficulty		);
 	ActionGameSettings(iPad,eGameSetting_Sensitivity_InGame	);
 	ActionGameSettings(iPad,eGameSetting_ViewBob		);
@@ -1400,6 +1402,14 @@ void CMinecraftApp::ActionGameSettings(int iPad,eGameSetting eVal)
 #endif
 		}				
 
+		break;
+	case eGameSetting_FOV:
+		if(iPad==ProfileManager.GetPrimaryPad())
+		{
+			float fovDeg = 70.0f + (float)GameSettingsA[iPad]->ucFov * 40.0f / 100.0f;
+			pMinecraft->gameRenderer->SetFovVal(fovDeg);
+			pMinecraft->options->set(Options::Option::FOV, (float)GameSettingsA[iPad]->ucFov / 100.0f);
+		}
 		break;
 	case eGameSetting_Difficulty:		
 		if(iPad==ProfileManager.GetPrimaryPad())
@@ -1871,6 +1881,17 @@ void CMinecraftApp::SetGameSettings(int iPad,eGameSetting eVal,unsigned char ucV
 			GameSettingsA[iPad]->bSettingsChanged=true;
 		}
 		break;
+	case eGameSetting_FOV:
+		if(GameSettingsA[iPad]->ucFov!=ucVal)
+		{
+			GameSettingsA[iPad]->ucFov=ucVal;
+			if(iPad==ProfileManager.GetPrimaryPad())
+			{
+				ActionGameSettings(iPad,eVal);
+			}
+			GameSettingsA[iPad]->bSettingsChanged=true;
+		}
+		break;
 	case eGameSetting_Difficulty:		
 		if((GameSettingsA[iPad]->usBitmaskValues&0x03)!=(ucVal&0x03))
 		{
@@ -2313,6 +2334,9 @@ unsigned char CMinecraftApp::GetGameSettings(int iPad,eGameSetting eVal)
 		break;
 	case eGameSetting_Gamma:
 		return GameSettingsA[iPad]->ucGamma;
+		break;
+	case eGameSetting_FOV:
+		return GameSettingsA[iPad]->ucFov;
 		break;
 	case eGameSetting_Difficulty:		
 		return GameSettingsA[iPad]->usBitmaskValues&0x0003;
