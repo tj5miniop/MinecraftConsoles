@@ -835,6 +835,7 @@ int CMinecraftApp::SetDefaultOptions(C_4JProfile::PROFILESETTINGS *pSettings,con
 {
 	SetGameSettings(iPad,eGameSetting_MusicVolume,DEFAULT_VOLUME_LEVEL);
 	SetGameSettings(iPad,eGameSetting_SoundFXVolume,DEFAULT_VOLUME_LEVEL);
+	SetGameSettings(iPad,eGameSetting_RenderDistance,16);
 	SetGameSettings(iPad,eGameSetting_Gamma,50);
 
 	// 4J-PB - Don't reset the difficult level if we're in-game
@@ -1329,6 +1330,7 @@ void CMinecraftApp::ApplyGameSettingsChanged(int iPad)
 {
 	ActionGameSettings(iPad,eGameSetting_MusicVolume	);
 	ActionGameSettings(iPad,eGameSetting_SoundFXVolume	);
+	ActionGameSettings(iPad,eGameSetting_RenderDistance	);
 	ActionGameSettings(iPad,eGameSetting_Gamma			);
 	ActionGameSettings(iPad,eGameSetting_Difficulty		);
 	ActionGameSettings(iPad,eGameSetting_Sensitivity_InGame	);
@@ -1376,6 +1378,15 @@ void CMinecraftApp::ActionGameSettings(int iPad,eGameSetting eVal)
 		{
 			pMinecraft->options->set(Options::Option::SOUND,((float)GameSettingsA[iPad]->ucSoundFXVolume)/100.0f);
 		}				
+		break;
+	case eGameSetting_RenderDistance:
+		if(iPad == ProfileManager.GetPrimaryPad())
+		{
+			int dist = (GameSettingsA[iPad]->uiBitmaskValues >> 16) & 0xFF;
+
+			int level = UIScene_SettingsGraphicsMenu::DistanceToLevel(dist);
+			pMinecraft->options->set(Options::Option::RENDER_DISTANCE, 3 - level);
+		}
 		break;
 	case eGameSetting_Gamma:
 		if(iPad==ProfileManager.GetPrimaryPad())
@@ -1838,6 +1849,17 @@ void CMinecraftApp::SetGameSettings(int iPad,eGameSetting eVal,unsigned char ucV
 			GameSettingsA[iPad]->bSettingsChanged=true;
 		}
 		break;
+	case eGameSetting_RenderDistance:
+		{
+			unsigned int val = ucVal & 0xFF;
+
+			GameSettingsA[iPad]->uiBitmaskValues &= ~(0xFF << 16);
+			GameSettingsA[iPad]->uiBitmaskValues |= val << 16;
+			if(iPad == ProfileManager.GetPrimaryPad())
+				ActionGameSettings(iPad,eVal);
+			GameSettingsA[iPad]->bSettingsChanged = true;
+		}
+		break;
 	case eGameSetting_Gamma:
 		if(GameSettingsA[iPad]->ucGamma!=ucVal)
 		{
@@ -2285,6 +2307,9 @@ unsigned char CMinecraftApp::GetGameSettings(int iPad,eGameSetting eVal)
 		break;
 	case eGameSetting_SoundFXVolume:
 		return GameSettingsA[iPad]->ucSoundFXVolume;
+		break;
+	case eGameSetting_RenderDistance:
+		return (GameSettingsA[iPad]->uiBitmaskValues >> 16) & 0xFF;
 		break;
 	case eGameSetting_Gamma:
 		return GameSettingsA[iPad]->ucGamma;
@@ -9546,6 +9571,61 @@ bool CMinecraftApp::IsLocalMultiplayerAvailable()
 void CMinecraftApp::getLocale(vector<wstring> &vecWstrLocales)
 {
 	vector<eMCLang> locales;
+
+#ifdef _WINDOWS64
+	unsigned char forcedLang = GetMinecraftLanguage(0);
+
+	if (forcedLang != MINECRAFT_LANGUAGE_DEFAULT)
+	{
+		switch (forcedLang)
+		{
+		case MINECRAFT_LANGUAGE_ENGLISH		:
+			locales.push_back(eMCLang_enUS);
+			break;
+
+		case MINECRAFT_LANGUAGE_JAPANESE	:
+			locales.push_back(eMCLang_jaJP);
+			break;
+
+		case MINECRAFT_LANGUAGE_GERMAN		:
+			locales.push_back(eMCLang_deDE);
+			break;
+
+		case MINECRAFT_LANGUAGE_FRENCH		:
+			locales.push_back(eMCLang_frFR);
+			break;
+
+		case MINECRAFT_LANGUAGE_SPANISH		:
+			locales.push_back(eMCLang_esES);
+			break;
+
+		case MINECRAFT_LANGUAGE_LATINAMERICANSPANISH	:
+			locales.push_back(eMCLang_laLAS);
+			locales.push_back(eMCLang_esMX);
+			break;
+
+		case MINECRAFT_LANGUAGE_ITALIAN		:
+			locales.push_back(eMCLang_itIT);
+			break;
+
+		case MINECRAFT_LANGUAGE_KOREAN		:
+			locales.push_back(eMCLang_koKR);
+			break;
+
+		case MINECRAFT_LANGUAGE_TCHINESE		:
+			locales.push_back(eMCLang_zhCHT);
+			break;
+
+		case MINECRAFT_LANGUAGE_PORTUGUESE		:
+			locales.push_back(eMCLang_ptPT);
+			break;
+
+		case MINECRAFT_LANGUAGE_BRAZILIAN		:
+			locales.push_back(eMCLang_ptBR);
+			break;
+		}
+	}
+#endif
 
 	DWORD dwSystemLanguage = XGetLanguage( );
 
